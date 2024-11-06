@@ -11,6 +11,7 @@ using namespace std;
 struct Edge {
     int destination;
     int weight;
+    int time;
 };
 
 // Graph structure created with adjecency_list
@@ -18,8 +19,12 @@ class Graph {
     unordered_map<int, vector<Edge>> list;
 
 public:
-    void add_edge(int u, int v, int weight) {
-        list[u].push_back({v, weight});
+    void add_edge(int u, int v, int weight, int time) {
+        list[u].push_back({v, weight, time});
+    }
+
+    unordered_map<int, vector<Edge>> get_list(){
+        return list;
     }
 
     
@@ -38,9 +43,10 @@ public:
         return result;
     }
 
-    void add_busLine(string b, string c){
-        
-       
+    void add_busLine(vector<int> stops, vector<int> times, int count, int totalStops){
+        for(int i = 0; i < stops.size()-1; i++){
+            add_edge(stops[i], stops[i+1], times[i+1]-times[i], times[i]);
+        }
     }
 };
 
@@ -61,11 +67,11 @@ int main()
         std::cout << busStops << std::endl;
         std:: vector<int> stops = graph.change_string_to_list_of_int(busStops);
         std:: vector<int> times = graph.change_string_to_list_of_int(arrivalTimes);
-
-        //  for(int i = 0; i < test.size(); i++){
-        //      std::cout<<test.at(i)<<std::endl;
+        graph.add_busLine(stops, times, i, numberOfBusstops);
+        unordered_map<int, vector<Edge>> list = graph.get_list();
+        //  for(int i = 0; i < list.size(); i++){
+        //      std::cout << list.at(i) << std::endl;
         //  }
-        std:: cout << "test" << std:: endl;
     }
     return 0;
 }
