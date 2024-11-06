@@ -55,8 +55,6 @@ int main()
     Graph graph;
     int numberOfBusLines;std::cin>>numberOfBusLines;
     int numberOfBusstops;std::cin>>numberOfBusstops;
-    std::cout<<numberOfBusLines<<std::endl;
-    //cin appart anders hoeft dit niet. Zoals bij getline.
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     for (int i = 0; i < numberOfBusLines; i++)
     {
@@ -64,14 +62,10 @@ int main()
         string arrivalTimes;
         std::getline(std::cin, busStops);
         std::getline(std::cin, arrivalTimes);
-        std::cout << busStops << std::endl;
         std:: vector<int> stops = graph.change_string_to_list_of_int(busStops);
         std:: vector<int> times = graph.change_string_to_list_of_int(arrivalTimes);
         graph.add_busLine(stops, times, i, numberOfBusstops);
         unordered_map<int, vector<Edge>> list = graph.get_list();
-        //  for(int i = 0; i < list.size(); i++){
-        //      std::cout << list.at(i) << std::endl;
-        //  }
     }
     return 0;
 }
