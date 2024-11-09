@@ -36,14 +36,9 @@ public:
             auto [curr_time, curr_node] = pq.top();
             pq.pop();
             
-            // If we reached the destination, return the arrival time
-            if (curr_node == end) {
-                return curr_time;
-            }
-            
             // Explore the neighbors
             for (const Edge& edge : list[curr_node]) {
-                if (curr_time == edge.time) {
+                if (curr_time <= edge.time) {
                     int arrival_time = edge.time + edge.weight;
                 
                     // Only proceed if we find a shorter path to the neighbor
@@ -53,8 +48,9 @@ public:
                     }
                 }
             }
+
         }
-        return -1;  // unreachable
+        return min_time[end];
     }
 
     vector<int> change_string_to_list_of_int(const string& input){
@@ -72,17 +68,17 @@ public:
             int from = get_id(stops[i], times[i]);
             int to = get_id(stops[i + 1], times[i + 1]);
             int weight = times[i + 1] - times[i];
-            add_edge(from, to, weight, times[i]);
+            add_edge(stops[i], stops[i + 1], weight, times[i]);
         }
     }
 
-    // I have created unique IDs for (location, time) pairs
     unordered_map<int, unordered_map<int, int>> location_time_to_id;
     int next_id = 0;
 
     int get_id(int location, int time) {
         if (!location_time_to_id[location].count(time)) {
-            location_time_to_id[location][time] = next_id++;
+            location_time_to_id[location][time] = next_id;
+            next_id++;
         }
         return location_time_to_id[location][time];
     }
@@ -92,7 +88,7 @@ int main()
 {
     Graph graph;
     int numberOfBusLines; cin >> numberOfBusLines;
-    int numberOfBusstops; cin >> numberOfBusstops;  // Correct spelling here
+    int numberOfBusstops; cin >> numberOfBusstops;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
     for (int i = 0; i < numberOfBusLines; i++)
@@ -108,10 +104,7 @@ int main()
         graph.add_busLine(stops, times);
     }
 
-    int start_id = graph.get_id(0, 0);  // Start at Mercator (Location 0 at time 0)
-    int end_id = graph.get_id(numberOfBusstops - 1, 0);  // Destination is Home (Location L-1)
-
-    int result = graph.dijkstra(start_id, end_id);
+    int result = graph.dijkstra(0, numberOfBusstops-1);
 
      if (result != -1) {
         cout << result << endl;
