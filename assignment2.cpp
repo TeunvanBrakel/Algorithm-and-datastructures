@@ -85,7 +85,7 @@ public:
         int result;
         int stopCount = 0;
         bool test = false;
-        if(stops[0] == 0 && times[0] == 0){
+        if(stops[0] == 0){
                 result = count;
                 test = true;
         }
@@ -93,10 +93,11 @@ public:
             int from = get_id(stops[i], times[i]);
             int to = get_id(stops[i + 1], times[i + 1]);
             int weight = times[i + 1] - times[i];
+            add_edge(stops[i], stops[i + 1], weight, times[i]);
             if(test == true && stops[i+1] == totalStops){
                 return 5656;
             }
-            add_edge(stops[i], stops[i + 1], weight, times[i]);
+            
             stopCount++;
         }
         return result;
@@ -141,7 +142,8 @@ int main()
             startBus = result;
         }
     }
-    if(startBus == 5656){
+    
+    if(startBus == 5656 && graph.get_list()[0].size() == 1){
         cout << 0 << endl;
         return 0;
     }else{
