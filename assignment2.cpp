@@ -17,6 +17,11 @@ struct Edge {
 struct vertex{
     int arrivalTime;
     int waitTime;
+
+     // Define an operator< for vertex
+    bool operator<(const vertex& other) const {
+        return arrivalTime < other.arrivalTime;
+    }
 };
 
 class Graph {
@@ -32,38 +37,36 @@ public:
     }
 
     int dijkstra(int start, int end) {
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-        unordered_map<int, vector<vertex>> min_time;
-        unordered_map<int, vector<vertex>> curr_waitTime;
-        pq.push({0, start});
+        priority_queue<pair<vertex, int>, vector<pair<vertex, int>>, greater<pair<vertex, int>>> pq;
+        unordered_map<int, int> min_time;
+        unordered_map<int, vector<vertex>> curr_waitTime;  
         vertex t;
         t.arrivalTime = 0;
         t.waitTime = 0;
-        min_time[start].push_back(t);
+        pq.push({t, start});
+        min_time[start] = 0;
         int waitTime = 0;
         while (!pq.empty()) {
-            auto [curr_time, curr_node] = pq.top();
+            auto [curr_vertex, curr_node] = pq.top();
             pq.pop();
             
             // Explore the neighbors
             for (const Edge& edge : list[curr_node]) {
-                if (curr_time <= edge.time) {
-                    int arrival_time = edge.time + edge.weight;
-                    waitTime = min_time[curr_node].data()->waitTime + edge.time - curr_time;
+                if (curr_vertex.arrivalTime <= edge.time) {
+                    vertex g;
+                    g.arrivalTime = edge.time + edge.weight;
+                    waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
+                    g.waitTime = waitTime;
                     // Only proceed if we find a shorter path to the neighbor
-                    if (!min_time.count(edge.destination) || arrival_time < min_time[edge.destination].data()->arrivalTime && waitTime < min_time[edge.destination].data()->waitTime) {
-                        vertex t;
-                        t.arrivalTime = arrival_time;
-                        t.waitTime = waitTime;
-                        min_time[edge.destination].clear();
-                        min_time[edge.destination].push_back(t);
-                        pq.push({arrival_time, edge.destination});
+                    if (!min_time.count(edge.destination) || waitTime < min_time[edge.destination]) {
+                        min_time[edge.destination] = waitTime;
                        // curr_waitTime[edge.destination].push_back({arrival_time, edge.destination, waitTime});
                     }
+                    pq.push({g, edge.destination});
                 }
             }
         }
-        return min_time[end].data()->waitTime;
+        return min_time[end];
     }
 
     vector<int> change_string_to_list_of_int(const string& input){
