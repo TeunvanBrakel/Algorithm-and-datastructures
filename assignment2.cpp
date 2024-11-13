@@ -20,7 +20,7 @@ struct vertex{
 
      // Define an operator< for vertex
     bool operator<(const vertex& other) const {
-        return arrivalTime < other.arrivalTime;
+        return waitTime < other.waitTime;
     }
 };
 
@@ -60,6 +60,9 @@ public:
                     // Only proceed if we find a shorter path to the neighbor
                     if (!min_time.count(edge.destination) || waitTime < min_time[edge.destination]) {
                         min_time[edge.destination] = waitTime;
+                            if(edge.destination == end && waitTime == 0){
+                                return 0;
+                            }
                        // curr_waitTime[edge.destination].push_back({arrival_time, edge.destination, waitTime});
                     }
                     pq.push({g, edge.destination});
