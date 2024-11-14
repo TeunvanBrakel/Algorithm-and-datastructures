@@ -49,6 +49,7 @@ public:
         t.waitTime = 0;
         pq.push({t, start});
         min_time[start] = 0;
+        min_time[end] = 999999999;
         int waitTime = 0;
         while (!pq.empty()) {
             auto [curr_vertex, curr_node] = pq.top();
@@ -57,19 +58,22 @@ public:
             // Explore the neighbors
             for (const Edge& edge : list[curr_node]) {
                 if (curr_vertex.arrivalTime <= edge.time) {
-                        vertex g;
-                        g.arrivalTime = edge.time + edge.weight;
                         waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
-                        g.waitTime = waitTime;
-                        // Only proceed if we find a shorter path to the neighbor
-                        if (!min_time.count(edge.destination) || waitTime < min_time[edge.destination]) {
-                            min_time[edge.destination] = waitTime;
-                            if(edge.destination == end && waitTime == 0){
-                                return 0;
+                        if(min_time[end] > waitTime){
+                            vertex g;
+                            g.arrivalTime = edge.time + edge.weight;
+                            g.waitTime = waitTime;
+                            // Only proceed if we find a shorter path to the neighbor
+                            if (!min_time.count(edge.destination) || waitTime < min_time[edge.destination]) {
+                                min_time[edge.destination] = waitTime;
+                                if(edge.destination == end && waitTime == 0){
+                                    return 0;
+                                }
+                            // curr_waitTime[edge.destination].push_back({arrival_time, edge.destination, waitTime});
                             }
-                        // curr_waitTime[edge.destination].push_back({arrival_time, edge.destination, waitTime});
+                            pq.push({g, edge.destination});
                         }
-                        pq.push({g, edge.destination});
+                        
                 }
             }
         }
