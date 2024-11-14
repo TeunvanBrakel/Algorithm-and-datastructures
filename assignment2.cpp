@@ -24,6 +24,11 @@ struct vertex{
     }
 };
 
+struct startingPoints{
+    int time;
+    int number;
+};
+
 class Graph {
     unordered_map<int, vector<Edge>> list;
 
@@ -81,12 +86,12 @@ public:
         return result;
     }
 
-    int add_busLine(const vector<int>& stops, const vector<int>& times, int count, int totalStops, int max){
-        int result;
+    startingPoints add_busLine(const vector<int>& stops, const vector<int>& times, int count, int totalStops, int max){
+        startingPoints result;
         int stopCount = 0;
         bool test = false;
         if(stops[0] == 0){
-                result = count;
+                result.number = count;
                 test = true;
         }
         for(size_t i = 0; i < stops.size()-1; i++){
@@ -95,7 +100,8 @@ public:
             int weight = times[i + 1] - times[i];
             add_edge(stops[i], stops[i + 1], weight, times[i]);
             if(test == true && stops[i+1] == totalStops){
-                return 5656;
+                result.number = 5656;
+                result.time = times[0];
             }
             
             stopCount++;
@@ -121,7 +127,7 @@ int main()
     int numberOfBusLines; cin >> numberOfBusLines;
     int numberOfBusstops; cin >> numberOfBusstops;
     int count = 0;
-    int startBus = 0;
+    unordered_map<int, startingPoints> startBus;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
     for (int i = 0; i < numberOfBusLines; i++)
@@ -134,19 +140,28 @@ int main()
         vector<int> stops = graph.change_string_to_list_of_int(busStops);
         vector<int> times = graph.change_string_to_list_of_int(arrivalTimes);
         
-        int result = graph.add_busLine(stops, times,count,numberOfBusstops-1, numberOfBusLines);
-        count++;
-        if(result == 5656){
-            startBus = 5656;
-        }else if(result != -1 && startBus != 5656){
-            startBus = result;
+        startingPoints result = graph.add_busLine(stops, times,count,numberOfBusstops-1, numberOfBusLines);
+        if(result.number == 5656){
+            startBus[count] = result;
+            count++;
+
         }
     }
-    
-    if(startBus == 5656 && graph.get_list()[0].size() == 1){
-        cout << 0 << endl;
-        return 0;
-    }else{
+    bool t = false;
+    bool exit = false;
+    auto g = graph.get_list();
+    for (int i = 0; i < startBus.size(); i++) {
+        if(startBus[i].time == 0){
+            t = true;
+            cout << 0 <<endl;
+            exit = true;
+            break;
+        }
+    }
+    // if(startBus[0].number == 5656 && t == false){
+    //     cout << 0 << endl;
+    //}
+    if(exit == false){
         int result = graph.dijkstra(0, numberOfBusstops-1);
 
         if (result != -1) {
@@ -154,6 +169,7 @@ int main()
         } else {
             cout << -1 << endl;
         }
-        return 0;
+    
     }
+    return 0;
 }
