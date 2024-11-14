@@ -130,6 +130,7 @@ int main()
     Graph graph;
     int numberOfBusLines; cin >> numberOfBusLines;
     int numberOfBusstops; cin >> numberOfBusstops;
+    bool skip = false;
     int count = 0;
     unordered_map<int, startingPoints> startBus;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -143,12 +144,16 @@ int main()
         
         vector<int> stops = graph.change_string_to_list_of_int(busStops);
         vector<int> times = graph.change_string_to_list_of_int(arrivalTimes);
-        
-        startingPoints result = graph.add_busLine(stops, times,count,numberOfBusstops-1, numberOfBusLines);
+        startingPoints result;
+        if(skip == false){
+            result = graph.add_busLine(stops, times,count,numberOfBusstops-1, numberOfBusLines);
+        }
         if(result.number == 5656){
             startBus[count] = result;
+            if(result.time == 0){
+                skip = true;
+            }
             count++;
-
         }
     }
     bool t = false;
