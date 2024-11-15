@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include <queue>
 #include <limits>
 #include <string>
@@ -12,6 +13,7 @@ struct Edge {
     int weight;
     int time;
     int waitTime;
+    int home;
 };
 
 struct vertex{
@@ -33,15 +35,15 @@ class Graph {
     unordered_map<int, vector<Edge>> list;
 
 public:
-    void add_edge(int u, int v, int weight, int time) {
-        list[u].push_back({v, weight, time,0});
+    void add_edge(int u, int v, int weight, int time, bool home) {
+        list[u].push_back({v, weight, time,0, home});
     }
 
     unordered_map<int, vector<Edge>> get_list(){
         return list;
     }
 
-    int dijkstra(int start, int end) {
+    int dijkstra(int start, int end, int minTime) {
         priority_queue<pair<vertex, int>, vector<pair<vertex, int>>, greater<pair<vertex, int>>> pq;
         unordered_map<int, int> min_time;
         vertex t;
@@ -49,7 +51,7 @@ public:
         t.waitTime = 0;
         pq.push({t, start});
         min_time[start] = 0;
-        min_time[end] = 999999999;
+        min_time[end] = minTime;
         int waitTime = 0;
         while (!pq.empty()) {
             auto [curr_vertex, curr_node] = pq.top();
@@ -58,8 +60,11 @@ public:
             // Explore the neighbors
             for (const Edge& edge : list[curr_node]) {
                 if (curr_vertex.arrivalTime <= edge.time) {
-                        waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
-                        if(min_time[end] > waitTime){
+                    waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
+                    if(min_time[end] > waitTime){
+                        if(edge.home){
+                            min_time[end] = waitTime;
+                        }else{
                             vertex g;
                             g.arrivalTime = edge.time + edge.weight;
                             g.waitTime = waitTime;
@@ -73,7 +78,7 @@ public:
                             }
                             pq.push({g, edge.destination});
                         }
-                        
+                    }
                 }
             }
         }
@@ -102,13 +107,17 @@ public:
             int from = get_id(stops[i], times[i]);
             int to = get_id(stops[i + 1], times[i + 1]);
             int weight = times[i + 1] - times[i];
-            add_edge(stops[i], stops[i + 1], weight, times[i]);
             if(test == true && stops[i+1] == totalStops){
                 result.number = 5656;
                 result.time = times[0];
             }
+            if(find(stops.begin() + i, stops.end(), totalStops) != stops.end() || stops[i] == totalStops){
+                add_edge(stops[i], stops[i + 1], weight, times[i], true);
+                stopCount++;
+            }else{
+              add_edge(stops[i], stops[i + 1], weight, times[i], false);
+            }
             
-            stopCount++;
         }
         return result;
     }
@@ -159,19 +168,21 @@ int main()
     bool t = false;
     bool exit = false;
     auto g = graph.get_list();
+    if(skip == true){
+        cout << 0 << endl;
+    }
+    if(skip == false){
+        int minTime = 999999999;
     for (int i = 0; i < startBus.size(); i++) {
-        if(startBus[i].time == 0){
-            t = true;
-            cout << 0 <<endl;
-            exit = true;
-            break;
+        if(startBus[i].time < minTime){
+            minTime = startBus[i].time;
         }
     }
     // if(startBus[0].number == 5656 && t == false){
     //     cout << 0 << endl;
     //}
     if(exit == false){
-        int result = graph.dijkstra(0, numberOfBusstops-1);
+        int result = graph.dijkstra(0, numberOfBusstops-1, minTime);
 
         if (result != -1) {
             cout << result << endl;
@@ -179,6 +190,7 @@ int main()
             cout << -1 << endl;
         }
     
+    }
     }
     return 0;
 }
