@@ -21,8 +21,13 @@ struct vertex{
     int waitTime;
 
      // Define an operator< for vertex
-    bool operator<(const vertex& other) const {
-        return waitTime < other.waitTime;
+     bool operator<(const vertex& other) const {
+        // Compare transfer_time in descending order
+        if (other.waitTime != waitTime) {
+            return waitTime > other.waitTime;
+        }
+        // If transfer_time is equal, compare time in descending order
+        return arrivalTime > other.arrivalTime;
     }
 };
 
@@ -97,7 +102,7 @@ public:
 
     startingPoints add_busLine(const vector<int>& stops, const vector<int>& times, int count, int totalStops, int max){
         startingPoints result;
-        int stopCount = 0;
+        //int stopCount = 0;
         bool test = false;
         if(stops[0] == 0){
                 result.number = count;
@@ -113,7 +118,7 @@ public:
             }
             if(find(stops.begin() + i, stops.end(), totalStops) != stops.end() || stops[i] == totalStops){
                 add_edge(stops[i], stops[i + 1], weight, times[i], true);
-                stopCount++;
+               // stopCount++;
             }else{
               add_edge(stops[i], stops[i + 1], weight, times[i], false);
             }
@@ -173,24 +178,24 @@ int main()
     }
     if(skip == false){
         int minTime = 999999999;
-    for (int i = 0; i < startBus.size(); i++) {
-        if(startBus[i].time < minTime){
-            minTime = startBus[i].time;
+        for (int i = 0; i < startBus.size(); i++) {
+            if(startBus[i].time < minTime){
+                minTime = startBus[i].time;
+            }
         }
-    }
-    // if(startBus[0].number == 5656 && t == false){
-    //     cout << 0 << endl;
-    //}
-    if(exit == false){
-        int result = graph.dijkstra(0, numberOfBusstops-1, minTime);
+        // if(startBus[0].number == 5656 && t == false){
+        //     cout << 0 << endl;
+        //}
+        if(exit == false){
+            int result = graph.dijkstra(0, numberOfBusstops-1, minTime);
 
-        if (result != -1) {
-            cout << result << endl;
-        } else {
-            cout << -1 << endl;
+            if (result != -1) {
+                cout << result << endl;
+            } else {
+                cout << -1 << endl;
+            }
+        
         }
-    
-    }
     }
     return 0;
 }
