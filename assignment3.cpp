@@ -41,15 +41,15 @@ public:
         return list;
     }
 
-    int dijkstra(int start, int end, int maxTime) {
+    int bfs(int start, int end, int maxTime) {
         priority_queue<pair<vertex, int>, vector<pair<vertex, int>>, greater<pair<vertex, int>>> pq;
-        unordered_map<int, int> min_time;
+        unordered_map<int, int> max_time;
         vertex t;
         t.arrivalTime = 0;
         t.waitTime = 0;
         pq.push({t, start});
-        min_time[start] = 0;
-        min_time[end] = maxTime;
+        max_time[start] = 0;
+        max_time[end] = maxTime;
         int waitTime = 0;
         while (!pq.empty()) {
             auto [curr_vertex, curr_node] = pq.top();
@@ -58,24 +58,19 @@ public:
             // Explore the neighbors
             for (const Edge& edge : list[curr_node]) {
                 if (curr_vertex.arrivalTime <= edge.time && curr_node != end) {
-                        waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
-                        //if(min_time[end] < waitTime){
-                            vertex g;
-                            g.arrivalTime = edge.time + edge.weight;
-                            g.waitTime = waitTime;
-                            // Only proceed if we find a shorter path to the neighbor
-                            if (!min_time[edge.destination] || waitTime > min_time[edge.destination]) {
-                                min_time[edge.destination] = waitTime;
-                            // curr_waitTime[edge.destination].push_back({arrival_time, edge.destination, waitTime});
-                            }if(edge.destination != end){
-                                pq.push({g, edge.destination});
-                            }
-                        //}
-                        
+                    waitTime = curr_vertex.waitTime + edge.time - curr_vertex.arrivalTime;
+                    t.arrivalTime = edge.time + edge.weight;
+                    t.waitTime = waitTime;
+                    // Only proceed if we find a shorter path to the neighbor
+                    if (!max_time[edge.destination] || waitTime > max_time[edge.destination]) {
+                        max_time[edge.destination] = waitTime;
+                    }if(edge.destination != end){
+                        pq.push({t, edge.destination});
+                    }
                 }
             }
         }
-        return min_time[end];
+        return max_time[end];
     }
 
     vector<int> change_string_to_list_of_int(const string& input){
@@ -90,17 +85,17 @@ public:
 
     startingPoints add_busLine(const vector<int>& stops, const vector<int>& times, int count, int totalStops, int max){
         startingPoints result;
-        bool test = false;
+        bool containsStart = false;
         if(stops[0] == 0){
                 result.number = count;
-                test = true;
+                containsStart = true;
         }
         for(size_t i = 0; i < stops.size()-1; i++){
             int from = get_id(stops[i], times[i]);
             int to = get_id(stops[i + 1], times[i + 1]);
             int weight = times[i + 1] - times[i];
             add_edge(stops[i], stops[i + 1], weight, times[i]);
-            if(test == true && stops[i+1] == totalStops){
+            if(containsStart == true && stops[i+1] == totalStops){
                 result.number = 5656;
                 result.time = times[0];
             }
@@ -145,13 +140,9 @@ int main()
         }
         if(result.number == 5656){
             startBus[count] = result;
-            //if(result.time == 0){
-              //  skip = true;
-            //}
             count++;
         }
     }
-    bool t = false;
     bool exit = false;
     int maxTime = 0;
     auto g = graph.get_list();
@@ -160,18 +151,14 @@ int main()
             maxTime = startBus[i].time;
         }
     }
-    // if(startBus[0].number == 5656 && t == false){
-    //     cout << 0 << endl;
-    //}
     if(exit == false){
-        int result = graph.dijkstra(0, numberOfBusstops-1, maxTime);
+        int result = graph.bfs(0, numberOfBusstops-1, maxTime);
 
         if (result != -1) {
             cout << result << endl;
         } else {
             cout << -1 << endl;
         }
-    
     }
     return 0;
 }
